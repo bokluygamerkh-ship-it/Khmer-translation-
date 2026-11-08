@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>ទំព័រស្វាគមន៍</title>
+</head>
+<body>
+<h1>សូមស្វាគមន៍មកកាន់គេហទំព័ររបស់ខ្ញុំ!</h1>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
 <title>ទាញយកវីដេអូ</title>
 </head>
 <body>
@@ -13,5 +23,125 @@ function downloadVideo() {
   alert('កំពុងដំណើរការ Link: ' + url);
 }
 </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <title>ប្រព័ន្ធគ្រប់គ្រង និងកែច្នៃវីដេអូ</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+        .section { margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 8px; }
+        label, input, select, button { display: block; margin-top: 10px; width: 100%; }
+        button { background-color: #007bff; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #historyList { list-style-type: none; padding: 0; }
+        #historyList li { background: #f9f9f9; margin-top: 5px; padding: 8px; border-bottom: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+    <h1>ប្រព័ន្ធគ្រប់គ្រង និងកែច្នៃវីដេអូ</h1>
+
+    <div class="section">
+        <h2>ទាញយកវីដេអូ</h2>
+        <input type="text" id="videoUrl" placeholder="បិទភ្ជាប់ Link វីដេអូនៅទីនេះ">
+        <button onclick="handleAction('download')">ទាញយក</button>
+    </div>
+
+    <div class="section">
+        <h2>បកប្រែសំឡេង</h2>
+        <select id="targetLanguage">
+            <option value="km">ភាសាខ្មែរ</option>
+            <option value="en">ភាសាអង់គ្លេស</option>
+            <option value="th">ភាសាថៃ</option>
+            <option value="vi">ភាសាវៀតណាម</option>
+        </select>
+        <button onclick="handleAction('translate')">ចាប់ផ្តើមបកប្រែ</button>
+    </div>
+
+    <div class="section">
+        <h2>កែសម្រួលវីដេអូ (Editing Mode)</h2>
+        <label><input type="checkbox" id="blurEffect" style="display:inline; width:auto;"> ធ្វើឱ្យព្រិល (Blur)</label>
+        <label>កែតម្រូវពន្លឺ: <input type="range" id="brightness" min="0" max="200" value="100"></label>
+        <label>បង្វិល:
+            <select id="rotation">
+                <item value="0">0 ដឺក្រេ</item>
+                <item value="90">90 ដឺក្រេ</item>
+                <item value="180">180 ដឺក្រេ</item>
+                <item value="270">270 ដឺក្រេ</item>
+            </select>
+        </label>
+        <button onclick="handleAction('edit')">អនុវត្តការកែសម្រួល</button>
+    </div>
+
+    <div class="section">
+        <h2>ទាញយកវីដេអូដែលបានកែច្នៃ</h2>
+        <button onclick="handleAction('save')">រក្សាទុកក្នុងឧបករណ៍</button>
+    </div>
+
+    <div class="section">
+        <h2>ប្រវត្តិ (History)</h2>
+        <ul id="historyList"></ul>
+        <button onclick="clearHistory()" style="background-color: #dc3545;">លុបប្រវត្តិ</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadHistory);
+
+        function handleAction(action) {
+            let logText = '';
+            const url = document.getElementById('videoUrl').value;
+
+            if (action === 'download') {
+                if(!url) { alert('ກະລុណាបញ្ចូល Link!'); return; }
+                logText = 'ទាញយកវីដេអូ: ' + url;
+            } else if (action === 'translate') {
+                const lang = document.getElementById('targetLanguage').value;
+                logText = 'បកប្រែទៅកាន់: ' + lang;
+            } else if (action === 'edit') {
+                const blur = document.getElementById('blurEffect').checked;
+                const brightness = document.getElementById('brightness').value;
+                const rot = document.getElementById('rotation').value;
+                logText = `កែសម្រួល - ព្រិល: ${blur}, ពន្លឺ: ${brightness}%, បង្វិល: ${rot}°`;
+            } else if (action === 'save') {
+                logText = 'បានរក្សាទុកវីដេអូក្នុងឧបករណ៍';
+            }
+
+            if (logText) {
+                addToHistory(logText);
+                alert('ប្រតិបត្តិការជោគជ័យ: ' + logText);
+            }
+        }
+
+        function addToHistory(text) {
+            let history = JSON.parse(localStorage.getItem('videoAppHistory')) || [];
+            history.unshift(new Date().toLocaleTimeString() + ' - ' + text);
+            if (history.length > 10) history.pop();
+            localStorage.setItem('videoAppHistory', JSON.stringify(history));
+            renderHistory(history);
+        }
+
+        function loadHistory() {
+            let history = JSON.parse(localStorage.getItem('videoAppHistory')) || [];
+            renderHistory(history);
+        }
+
+        function renderHistory(history) {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            history.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                list.appendChild(li);
+            });
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('videoAppHistory');
+            renderHistory([]);
+        }
+    </script>
 </body>
 </html>
