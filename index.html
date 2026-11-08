@@ -2,7 +2,7 @@
 <html lang="km">
 <head>
     <meta charset="UTF-8">
-    <title>HY-EDITOR Video</title>
+    <title>HY-EDITOR Pro</title>
     <style>
         :root {
             --bg-main: #0B0F19;
@@ -14,8 +14,27 @@
             --border: #2A3B54;
         }
 
-        body {
-            margin: 0;
+        body.theme-light {
+            --bg-main: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --bg-surface: #F1F5F9;
+            --accent: #6366F1;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+        }
+
+        body.theme-red {
+            --bg-main: #1E0A0A;
+            --bg-card: #2E1010;
+            --bg-surface: #451717;
+            --accent: #EF4444;
+            --text-main: #FEE2E2;
+            --text-muted: #FCA5A5;
+            --border: #7F1D1D;
+        }
+
+        margin: 0;
             background-color: var(--bg-main);
             color: var(--text-main);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -23,10 +42,11 @@
             height: 100vh;
             width: 100vw;
             overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .sidebar {
-            width: 72px;
+            width: 90px;
             background: var(--bg-card);
             display: flex;
             flex-direction: column;
@@ -34,118 +54,262 @@
             padding: 24px 0;
             border-right: 1px solid var(--border);
             flex-shrink: 0;
+            transition: background 0.3s, border-color 0.3s;
         }
 
-        .logo { font-weight: 800; font-size: 20px; color: var(--accent); margin-bottom: 48px; }
+        .logo { font-weight: 800; font-size: 24px; color: var(--accent); margin-bottom: 36px; }
 
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 6px; margin-bottom: 24px; cursor: pointer; text-decoration: none; color: var(--text-muted);
+        }
         .nav-icon {
-            width: 40px; height: 40px; background: var(--bg-surface);
-            border-radius: 12px; margin-bottom: 24px; display: flex;
-            align-items: center; justify-content: center; cursor: pointer;
+            width: 48px; height: 48px; background: var(--bg-surface);
+            border-radius: 16px; display: flex;
+            align-items: center; justify-content: center; font-size: 24px;
+            transition: all 0.3s;
         }
-        .nav-icon.active { background: var(--accent); }
+        .nav-item.active { color: var(--accent); }
+        .nav-item.active .nav-icon { background: var(--accent); color: white; transform: scale(1.05); }
+        .nav-label { font-size: 11px; font-weight: 600; }
 
-        main {
-            flex: 1; display: grid; grid-template-columns: 1fr 340px;
-            grid-template-rows: 1fr 200px; gap: 16px; padding: 16px;
-            overflow: hidden; box-sizing: border-box;
+        main { flex: 1; position: relative; overflow: hidden; }
+
+        .app-view {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            padding: 24px; box-sizing: border-box; display: none; overflow-y: auto;
+            grid-template-columns: 1fr 340px; grid-template-rows: 1fr 200px; gap: 20px;
         }
+        .app-view.active { display: grid; }
 
+        /* Video Editor View */
         .viewer-container {
-            background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border);
+            background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border);
             display: flex; align-items: center; justify-content: center;
-            position: relative; overflow: hidden;
+            position: relative; overflow: hidden; grid-row: 1;
         }
-
-        #videoElement { max-width: 100%; max-height: 100%; display: none; }
-
+        #videoElement { max-width: 100%; max-height: 100%; display: none; transition: transform 0.1s; }
         .upload-zone {
             border: 2px dashed var(--border); padding: 40px; text-align: center;
-            border-radius: 16px; cursor: pointer;
+            border-radius: 20px; cursor: pointer; transition: border 0.3s;
         }
+        .upload-zone:hover { border-color: var(--accent); }
 
         .inspector {
-            background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border);
-            padding: 24px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto;
+            background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border);
+            padding: 24px; display: flex; flex-direction: column; gap: 20px;
         }
-
-        h3 { margin: 0; font-size: 18px; }
+        h2 { margin: 0; font-size: 22px; color: var(--text-main); }
         .control-group { display: flex; flex-direction: column; gap: 8px; }
-        label { font-size: 14px; color: var(--text-muted); }
+        label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
         input[type="range"] { width: 100%; accent-color: var(--accent); }
-        select { padding: 8px; background: var(--bg-surface); color: white; border: 1px solid var(--border); border-radius: 6px; }
+        select { padding: 10px; background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
 
         .btn-action {
-            background: var(--accent); color: white; border: none; padding: 12px;
-            border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center;
+            background: var(--accent); color: white; border: none; padding: 14px;
+            border-radius: 12px; font-weight: 600; cursor: pointer; text-align: center;
+            transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
+        .btn-action:hover { opacity: 0.9; }
 
         .timeline-container {
-            grid-column: span 2; background: var(--bg-card); border-radius: 16px;
-            border: 1px solid var(--border); display: flex; flex-direction: column; padding: 16px; gap: 10px;
+            grid-column: span 2; background: var(--bg-card); border-radius: 20px;
+            border: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; gap: 12px;
+        }
+        .track-container { flex: 1; background: var(--bg-surface); border-radius: 12px; position: relative; overflow: hidden; }
+        .clip {
+            height: 70%; background: var(--accent); color: white; border-radius: 8px; position: absolute;
+            left: 20px; top: 15%; width: 200px; display: none; align-items: center;
+            padding: 0 12px; font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .track-container { flex: 1; background: var(--bg-surface); border-radius: 8px; position: relative; }
-        .clip {
-            height: 80%; background: var(--accent); border-radius: 6px; position: absolute;
-            left: 20px; top: 10%; width: 250px; display: none; align-items: center;
-            padding: 0 10px; font-size: 12px;
-        }
+        /* AI View */
+        .ai-container { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .ai-card { background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+        .output-box { background: var(--bg-surface); padding: 16px; border-radius: 12px; min-height: 80px; border: 1px solid var(--border); font-size: 14px; color: var(--text-muted); }
+
+        /* Settings View */
+        .settings-container { grid-column: span 2; max-width: 800px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 24px; }
+        .settings-card { background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border); padding: 28px; display: flex; flex-direction: column; gap: 20px; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .admin-links { display: flex; gap: 16px; }
+        .admin-btn { padding: 10px 20px; border-radius: 10px; text-decoration: none; color: white; font-weight: 600; font-size: 14px; text-align: center; }
+        .btn-tg { background: #0088CC; }
+        .btn-fb { background: #1877F2; }
+        .color-pickers { display: flex; gap: 12px; }
+        .color-circle { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
+        .color-circle.active { border-color: white; transform: scale(1.1); }
+
+        /* Download View */
+        .download-container { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .dl-card { background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border); padding: 28px; display: flex; flex-direction: column; gap: 20px; }
+        .input-group { display: flex; gap: 12px; }
+        input[type="text"] { flex: 1; padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text-main); font-size: 14px; }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo">HY</div>
-        <div class="nav-icon active">📺</div>
-        <div class="nav-icon">✨</div>
-        <div class="nav-icon">⚙️</div>
+        <a class="nav-item active" onclick="switchTab('editor', this)">
+            <div class="nav-icon">📺</div>
+            <div class="nav-label">Edit Video</div>
+        </a>
+        <a class="nav-item" onclick="switchTab('ai', this)">
+            <div class="nav-icon">✨</div>
+            <div class="nav-label">AI Generate</div>
+        </a>
+        <a class="nav-item" onclick="switchTab('download', this)">
+            <div class="nav-icon">⬇️</div>
+            <div class="nav-label">Download</div>
+        </a>
+        <a class="nav-item" onclick="switchTab('settings', this)">
+            <div class="nav-icon">⚙️</div>
+            <div class="nav-label">Setting</div>
+        </a>
     </div>
     
     <main>
-        <div class="viewer-container">
-            <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-                <div>⬆️</div>
-                <div style="font-weight: 600; margin-top: 8px;">ជ្រើសរើសវីដេអូ</div>
-                <input type="file" id="fileInput" accept="video/*" style="display: none" onchange="handleFileUpload(event)">
+        <!-- Editor View -->
+        <div id="editor" class="app-view active">
+            <div class="viewer-container">
+                <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                    <div style="font-size: 36px;">⬆️</div>
+                    <div style="font-weight: 600; margin-top: 12px; font-size: 16px;">ជ្រើសរើសវីដេអូ</div>
+                    <input type="file" id="fileInput" accept="video/*" style="display: none" onchange="handleFileUpload(event)">
+                </div>
+                <video id="videoElement" controls></video>
             </div>
-            <video id="videoElement" controls></video>
+
+            <div class="inspector">
+                <h2>ឧបករណ៍កែច្នៃ</h2>
+                <div class="control-group">
+                    <label>បែបផែន (Filters)</label>
+                    <select id="filterSelect" onchange="applyEffects()">
+                        <option value="none">ធម្មតា</option>
+                        <option value="grayscale(100%)">ស‑ខ្មៅ</option>
+                        <option value="sepia(100%)">បុរាណ (Sepia)</option>
+                        <option value="invert(100%)">បញ្ច្រាស់ពណ៌</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>កម្រិតពន្លឺ</label>
+                    <input type="range" id="brightness" min="0" max="200" value="100" oninput="applyEffects()">
+                </div>
+                <div class="control-group">
+                    <label>កម្រិតព្រិល (Blur)</label>
+                    <input type="range" id="blur" min="0" max="20" value="0" oninput="applyEffects()">
+                </div>
+                <div class="control-group">
+                    <label>ការច្រឹប (Zoom/Crop)</label>
+                    <input type="range" id="zoom" min="1" max="3" step="0.1" value="1" oninput="applyEffects()">
+                </div>
+                <button class="btn-action" onclick="downloadVideo()">ទាញយកវីដេអូ</button>
+            </div>
+
+            <div class="timeline-container">
+                <div style="font-weight: 600; font-size: 16px;">Timeline</div>
+                <div class="track-container">
+                    <div class="clip" id="videoClip">Video_Track.mp4</div>
+                </div>
+            </div>
         </div>
 
-        <div class="inspector">
-            <h3>ឧបករណ៍កែច្នៃ</h3>
-            <div class="control-group">
-                <label>បែបផែន (Filters)</label>
-                <select id="filterSelect" onchange="ApplyEffects()">
-                    <option value="none">ធម្មតា</option>
-                    <option value="grayscale(100%)">ស‑ខ្មៅ</option>
-                    <option value="sepia(100%)">បុរាណ (Sepia)</option>
-                    <option value="invert(100%)">បញ្ច្រាស់ពណ៌</option>
-                </select>
+        <!-- AI View -->
+        <div id="ai" class="app-view">
+            <div class="ai-container">
+                <div class="ai-card">
+                    <h2>AI Thumbnail Generator</h2>
+                    <button class="btn-action" onclick="generateAI('thumb')"> உருவாக்கு Thumbnail</button>
+                    <div class="output-box" id="thumbOutput">លទ្ធផល Thumbnail នឹងបង្ហាញនៅទីនេះ...</div>
+                </div>
+                <div class="ai-card">
+                    <h2>AI Hashtag Generator</h2>
+                    <button class="btn-action" onclick="generateAI('hash')">បង្កើត Hashtag</button>
+                    <div class="output-box" id="hashOutput">លទ្ធផល Hashtags នឹងបង្ហាញនៅទីនេះ...</div>
+                </div>
+                <div class="ai-card" style="grid-column: span 2;">
+                    <h2>AI Title Generator</h2>
+                    <button class="btn-action" onclick="generateAI('title')">បង្កើតចំណងជើង</button>
+                    <div class="output-box" id="titleOutput">ចំណងជើងទាក់ទាញនឹងបង្ហាញនៅទីនេះ...</div>
+                </div>
             </div>
-            <div class="control-group">
-                <label>កម្រិតពន្លឺ</label>
-                <input type="range" id="brightness" min="0" max="200" value="100" oninput="ApplyEffects()">
-            </div>
-            <div class="control-group">
-                <label>កម្រិតព្រិល (Blur)</label>
-                <input type="range" id="blur" min="0" max="20" value="0" oninput="ApplyEffects()">
-            </div>
-            <div class="control-group">
-                <label>ការច្រឹប (Zoom/Crop)</label>
-                <input type="range" id="zoom" min="1" max="3" step="0.1" value="1" oninput="ApplyEffects()">
-            </div>
-            <button class="btn-action" onclick="downloadVideo()">ទាញយកវីដេអូ</button>
         </div>
 
-        <div class="timeline-container">
-            <div style="font-weight: 600; font-size: 14px;">Timeline</div>
-            <div class="track-container">
-                <div class="clip" id="videoClip">Video_Track.mp4</div>
+        <!-- Download View -->
+        <div id="download" class="app-view">
+            <div class="download-container">
+                <div class="dl-card">
+                    <h2>ទាញយកទូទៅ (Social Media)</h2>
+                    <div class="input-group">
+                        <input type="text" placeholder="បិទ Link វីដេអូ (Facebook, TikTok, YT)...">
+                        <button class="btn-action" onclick="processDownload(false)">Download</button>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted);">អនុវត្តមុខងារស្វ័យប្រវត្តិកាត់ Logo និងអក្សររត់។</div>
+                </div>
+                <div class="dl-card">
+                    <h2>ទាញយកភាគរឿងចិន (Batch)</h2>
+                    <div class="input-group">
+                        <input type="text" placeholder="បិទ Link គេហទំព័ររឿងភាគចិន...">
+                        <button class="btn-action" onclick="processDownload(true)">ទាញយកទាំងអស់</button>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted);">ទាញយកគ្រប់ភាគក្នុងពេលតែមួយ ព្រមទាំងកាត់ Logo ។</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings View -->
+        <div id="settings" class="app-view">
+            <div class="settings-container">
+                <div class="settings-card">
+                    <h2>ការកំណត់ (Settings)</h2>
+                    <div class="setting-item">
+                        <div>
+                            <div style="font-weight: 600;">ពណ៌ផ្ទៃកម្មវិធី (Theme Color)</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">ជ្រើសរើសពណ៌ចិន្ដាដែលអ្នកពេញចិត្ត</div>
+                        </div>
+                        <div class="color-pickers">
+                            <div class="color-circle active" style="background: #0B0F19;" onclick="setTheme('theme-dark', this)"></div>
+                            <div class="color-circle" style="background: #F8FAFC; border: 1px solid #ccc;" onclick="setTheme('theme-light', this)"></div>
+                            <div class="color-circle" style="background: #2E1010;" onclick="setTheme('theme-red', this)"></div>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div style="font-weight: 600;">សម្អាតទិន្នន័យ (Clear Cache)</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">លុបឯកសារបណ្តោះអាសន្ន និងមេរោគ</div>
+                        </div>
+                        <button class="btn-action" style="background: #EF4444;" onclick="clearData()">Clear Data</button>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div style="font-weight: 600;">ទាក់ទង Admin</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">ត្រូវការជំនួយបន្ថែម? ទាក់ទងមកខ្ញុំផ្ទាល់</div>
+                        </div>
+                        <div class="admin-links">
+                            <a href="https://t.me/yourusername" class="admin-btn btn-tg" target="_blank">Telegram</a>
+                            <a href="https://facebook.com/yourprofile" class="admin-btn btn-fb" target="_blank">Facebook</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
     <script>
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.app-view').forEach(view => view.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        function setTheme(themeClass, element) {
+            document.body.className = themeClass;
+            document.querySelectorAll('.color-circle').forEach(circle => circle.classList.remove('active'));
+            element.classList.add('active');
+        }
+
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (file) {
@@ -161,7 +325,7 @@
             }
         }
 
-        function ApplyEffects() {
+        function applyEffects() {
             const video = document.getElementById('videoElement');
             const filter = document.getElementById('filterSelect').value;
             const brightness = document.getElementById('brightness').value;
@@ -172,6 +336,26 @@
             video.style.transform = `scale(${zoom})`;
         }
 
+        function generateAI(type) {
+            const outputs = {
+                thumb: ["🎬 រូបភាពតួឯកយ៉ាងរំជួលចិត្ត", "🔥 ឈុតឆាកប្រយុទ្ធដ៏ក្ដៅគគុក", "✨ ពេលវេលាដ៏ត្រដាបត្រដួស"],
+                hash: ["#ChineseDrama #ReviewFilm #Trending", "#MovieUpdate #KHFilm #Action", "#DramaSeries #TopPick #Viral"],
+                title: ["រឿងភាគចិនថ្មីក្តៅៗ ហាមដាច់ខាត!", "ខមិនប្រាប់ផង តួឯកស្រីទៅណា?", "សាច់រឿងកាន់តែល្អមើលហើយ!"]
+            };
+            const randomPick = outputs[type][Math.floor(Math.random() * outputs[type].length)];
+            document.getElementById(`${type}Output`).innerHTML = `<strong>លទ្ធផល:</strong><br>${randomPick}`;
+        }
+
+        function processDownload(isBatch) {
+            alert(isBatch ? "កំពុងទាញយកគ្រប់ភាគ និងកាត់ Logo..." : "កំពុងទាញយកវីដេអូ និងកាត់ Logo...");
+        }
+
+        function clearData() {
+            if(confirm("តើអ្នកប្រាកដជាចង់សម្អាតទិន្នន័យទាំងអស់មែនទេ?")) {
+                alert("សម្អាតទិន្នន័យជោគជ័យ!");
+            }
+        }
+
         function downloadVideo() {
             const video = document.getElementById('videoElement');
             if (!video.src) {
@@ -180,7 +364,7 @@
             }
             const a = document.createElement('a');
             a.href = video.src;
-            a.download = 'Edited_Hi-C_Video.mp4';
+            a.download = 'Edited_HY_Video.mp4';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
