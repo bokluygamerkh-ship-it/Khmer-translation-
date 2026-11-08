@@ -1,2 +1,0 @@
-# Khmer-translation-
-Translate video 
