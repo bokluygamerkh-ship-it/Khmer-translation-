@@ -2,7 +2,7 @@
 <html lang="km">
 <head>
     <meta charset="UTF-8">
-    <title>HY Editor Video</title>
+    <title>HY-EDITOR Video</title>
     <style>
         :root {
             --bg-main: #0B0F19;
@@ -95,7 +95,7 @@
 </head>
 <body>
     <div class="sidebar">
-        <div class="logo">HY-EDITOR</div>
+        <div class="logo">HY</div>
         <div class="nav-icon active">📺</div>
         <div class="nav-icon">✨</div>
         <div class="nav-icon">⚙️</div>
@@ -116,10 +116,10 @@
             <div class="control-group">
                 <label>បែបផែន (Filters)</label>
                 <select id="filterSelect" onchange="ApplyEffects()">
-                    <value="none">ធម្មតា</value>
-                    <value="grayscale(100%)">ស‑ខ្មៅ</value>
-                    <value="sepia(100%)">បុរាណ (Sepia)</value>
-                    <value="invert(100%)">បញ្ច្រាស់ពណ៌</value>
+                    <option value="none">ធម្មតា</option>
+                    <option value="grayscale(100%)">ស‑ខ្មៅ</option>
+                    <option value="sepia(100%)">បុរាណ (Sepia)</option>
+                    <option value="invert(100%)">បញ្ច្រាស់ពណ៌</option>
                 </select>
             </div>
             <div class="control-group">
@@ -134,7 +134,7 @@
                 <label>ការច្រឹប (Zoom/Crop)</label>
                 <input type="range" id="zoom" min="1" max="3" step="0.1" value="1" oninput="ApplyEffects()">
             </div>
-            <button class="btn-action" onclick="downloadVideo()">ទាញយកវīដេអូ</button>
+            <button class="btn-action" onclick="downloadVideo()">ទាញយកវីដេអូ</button>
         </div>
 
         <div class="timeline-container">
@@ -175,7 +175,7 @@
         function downloadVideo() {
             const video = document.getElementById('videoElement');
             if (!video.src) {
-                alert('សូមមេត្តាបញ្ចូលវីដេអូជាមុនសិន!');
+                alert('សូមមេត្តាបញ្ចូលវីដេអូសិន!');
                 return;
             }
             const a = document.createElement('a');
