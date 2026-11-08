@@ -25,56 +25,244 @@ function downloadVideo() {
 </script>
 </body>
 </html>
+
 <!DOCTYPE html>
 <html lang="km">
 <head>
     <meta charset="UTF-8">
     <title>Hi-C Editor Video</title>
     <style>
-        body { margin: 0; background-color: #121218; color: #fff; font-family: sans-serif; display: flex; height: 100vh; }
-        .sidebar { width: 60px; background: #1a1a24; display: flex; flex-direction: column; align-items: center; padding: 20px 0; border-right: 1px solid #2a2a36; }
-        .logo { font-weight: bold; color: #a855f7; margin-bottom: 40px; }
-        .nav-icon { width: 30px; height: 30px; background: #2a2a36; border-radius: 8px; margin-bottom: 20px; }
-        main { flex: 1; display: grid; grid-template-rows: 2fr 1fr; grid-template-columns: 3fr 1fr; gap: 15px; padding: 20px; }
-        .viewer { background: #1a1a24; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .upload-card { border: 2px dashed #4a4a6a; padding: 40px; text-align: center; border-radius: 12px; }
-        .timeline { background: #1a1a24; border-radius: 12px; grid-column: span 2; display: flex; align-items: center; padding: 20px; gap: 20px; }
-        .track { flex: 1; height: 60px; background: #232331; border-radius: 8px; position: relative; }
-        .clip { width: 150px; height: 100%; background: #6366f1; border-radius: 6px; position: absolute; }
-        .inspector { background: #1a1a24; border-radius: 12px; padding: 20px; }
-        .control-group { margin-bottom: 20px; }
-        .control-group label { display: block; margin-bottom: 8px; color: #a1a1aa; }
-        .slider { width: 100%; }
+        :root {
+            --bg-main: #0B0F19;
+            --bg-card: #131A28;
+            --bg-surface: #1C2538;
+            --accent: #7C3AED;
+            --accent-glow: rgba(124, 58, 237, 0.3);
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --border: #2A3B54;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 72px;
+            background: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 0;
+            border-right: 1px solid var(--border);
+            z-index: 10;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--accent);
+            margin-bottom: 48px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-surface);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-icon:hover, .nav-icon.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        /* Main Workspace */
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-rows: 1fr 220px;
+            grid-template-columns: 1fr 340px;
+            gap: 16px;
+            padding: 16px;
+            overflow: hidden;
+        }
+
+        /* Video Preview Area */
+        .viewer-container {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            padding: 40px 60px;
+            text-align: center;
+            border-radius: 16px;
+            transition: border-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        /* Inspector / Controls */
+        .inspector {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        h3 { margin: 0; font-size: 18px; color: white; }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label { font-size: 14px; color: var(--text-muted); }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-surface);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+        }
+
+        /* Timeline Area */
+        .timeline-container {
+            grid-column: span 2;
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 12px;
+        }
+
+        .timeline-toolbar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .track-container {
+            flex: 1;
+            background: var(--bg-surface);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .clip {
+            height: 80%;
+            background: linear-gradient(90deg, #6366F1, #8B5CF6);
+            border-radius: 6px;
+            position: absolute;
+            left: 40px;
+            width: 300px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo">Hi-C</div>
-        <div class="nav-icon"></div>
-        <div class="nav-icon"></div>
-        <div class="nav-icon"></div>
+        <div class="nav-icon active">📺</div>
+        <div class="nav-icon">✨</div>
+        <div class="nav-icon">⚙️</div>
     </div>
+    
     <main>
-        <div class="viewer">
-            <div class="upload-card">
-                <p>ទាញ និងទម្លាក់វីដេអូនៅទីនេះ</p>
+        <div class="viewer-container">
+            <div class="upload-zone">
+                <div class="upload-icon">⬆️</div>
+                <div style="font-weight: 600; margin-bottom: 4px;">ទាញ និងទម្លាក់វីដេអូនៅទីនេះ</div>
+                <div style="font-size: 12px; color: var(--text-muted);">MP4, MKV, MOV ឬ SRT</div>
             </div>
         </div>
+
         <div class="inspector">
             <h3>ការកំណត់</h3>
             <div class="control-group">
                 <label>កម្រិតពន្លឺ</label>
-                <input type="range" class="slider">
+                <input type="range" min="0" max="200" value="100">
             </div>
             <div class="control-group">
-                <label>ទំហំអក្សរ</label>
-                <input type="range" class="slider">
+                <label>កម្រិតពណ៌ (Saturation)</label>
+                <input type="range" min="0" max="200" value="100">
+            </div>
+            <div class="control-group">
+                <label>កម្រិតព្រិល (Blur)</label>
+                <input type="range" min="0" max="100" value="0">
             </div>
         </div>
-        <div class="timeline">
-            <div>Timeline</div>
-            <div class="track">
-                <div class="clip"></div>
+
+        <div class="timeline-container">
+            <div class="timeline-toolbar">
+                <span style="font-size: 14px; font-weight: 600;">Timeline</span>
+                <span style="color: var(--text-muted); font-size: 12px;">| 00:01:25:00</span>
+            </div>
+            <div class="track-container">
+                <div class="clip">Video_Track_01.mp4</div>
             </div>
         </div>
     </main>
