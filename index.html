@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>ទំព័រស្វាគមន៍</title>
+<title>ទាញយកវីដេអូ</title>
 </head>
 <body>
-<h1>សូមស្វាគមន៍មកកាន់គេហទំព័ររបស់ខ្ញុំ!</h1>
+<h2>ទាញយកវីដេអូ</h2>
+<input type="text" id="videoUrl" placeholder="បិទភ្ជាប់ Link នៅទីនេះ">
+<button onclick="downloadVideo()">ទាញយក</button>
+<script>
+function downloadVideo() {
+  const url = document.getElementById('videoUrl').value;
+  alert('កំពុងដំណើរការ Link: ' + url);
+}
+</script>
 </body>
 </html>
